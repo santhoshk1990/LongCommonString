@@ -9,43 +9,33 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.spring.lcs.exception.SimilarStringException;
+import com.spring.lcs.service.FetchService;
+
 @Controller
 public class HomeController {
-	@RequestMapping(value = "/findLcs", method = RequestMethod.POST)
-	public ModelAndView findLCS(@RequestParam("string1") String str1, @RequestParam("string2") String str2, @RequestParam("string3") String str3, HttpServletRequest request, HttpServletResponse response)
-			{
-				int maxlen = 0; 		
-				int m = str1.length(), n = str2.length(), o = str3.length();
-				int endingIndex = m;
-				String result;
-				int[][][] lookup = new int[m + 1][n + 1][o + 1];
-
-				for (int i = 1; i <= m; i++)
-				{
-					for (int j = 1; j <= n; j++)
-					{
-						for (int k = 1; k <= o; k++)
-						{
-						if (str1.charAt(i - 1) == str2.charAt(j - 1) && str1.charAt(i - 1) == str2.charAt(k - 1) )
-						{
-							lookup[i][j][k] = lookup[i - 1][j - 1][k - 1] + 1;
-
-							if (lookup[i][j][k] > maxlen)
-							{
-								maxlen = lookup[i][j][k];
-								endingIndex = i;
-							}
-						}
-					    }
-				     }
-			      }
-				result = str1.substring(endingIndex - maxlen, endingIndex);
+	
+	@RequestMapping(value = "/findLcs", method = RequestMethod.GET)
+	public ModelAndView getLCS(@RequestParam("string1") String str1, @RequestParam("string2") String str2, @RequestParam("string3") String str3, HttpServletRequest request, HttpServletResponse response) throws SimilarStringException
+	{
 				
-				ModelAndView mv = new ModelAndView();
-				mv.setViewName("display");
-				mv.addObject("result", result);
+		if(str1.equals(str2) || str1.equals(str3) || str2.equals(str3))
+			
+			throw new SimilarStringException("Same String Passed. Please Pass Unique Strings");
+			
+		else 
+		{
 				
-				return mv; 
-
-			}
+				FetchService fs = new FetchService();
+		
+		String result = fs.findLCS(str1, str2, str3);
+				
+		ModelAndView mv = new ModelAndView();
+		mv.setViewName("display");
+		mv.addObject("result", result);
+				
+		return mv; 
+		
+        }
+     }  
 }
